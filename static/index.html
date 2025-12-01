@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA 3D | AI Voice Assistant</title>
-    <link rel="stylesheet" href="style.css?v=1">
+    <title>NOVA | AI System</title>
+    <link rel="stylesheet" href="style.css?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&family=Courier+New&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Courier+New&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Three.js Library -->
@@ -21,24 +21,49 @@
 
     <!-- Floating HUD Interface -->
     <div class="app-container">
+        <!-- Tech Corners -->
+        <div class="tech-border tl"></div>
+        <div class="tech-border tr"></div>
+        <div class="tech-border bl"></div>
+        <div class="tech-border br"></div>
+
         <header>
-            <div class="logo">AURA 3D</div>
-            <div class="connection-status online"></div>
+            <div class="logo-container">
+                <div class="logo">NOVA</div>
+                <div class="subtitle">SYSTEM CORE: ONLINE</div>
+            </div>
+
+            <!-- Fake System Metrics -->
+            <div class="system-metrics">
+                <div class="metric">
+                    <span>CPU</span>
+                    <div class="bar">
+                        <div class="bar-fill" style="width: 40%"></div>
+                    </div>
+                </div>
+                <div class="metric">
+                    <span>RAM</span>
+                    <div class="bar">
+                        <div class="bar-fill" style="width: 65%; animation-delay: 1s"></div>
+                    </div>
+                </div>
+                <div class="metric">
+                    <span>NET</span>
+                    <div class="bar">
+                        <div class="bar-fill" style="width: 80%; animation-delay: 0.5s"></div>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <main>
-            <!-- Spacer to push content around the 3D sphere -->
-            <div class="visualizer-spacer"></div>
-
-            <div class="status-display">
-                <div class="status-line"></div>
-                <p id="status-text">SYSTEM ONLINE</p>
-                <div class="status-line"></div>
-            </div>
+            <!-- 3D Reactor is in background -->
 
             <div class="chat-area" id="chat-area">
                 <div class="message ai-message">
-                    System initialized. Visual core active.
+                    NOVA System v2.0 initialized.
+                    <br>Reactor Core: Stable.
+                    <br>Awaiting command input...
                 </div>
             </div>
         </main>
@@ -51,7 +76,7 @@
     </div>
 
     <!-- Main Script with Cache Busting -->
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=7"></script>
 </body>
 
 </html>

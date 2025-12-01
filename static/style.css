@@ -1,8 +1,13 @@
 :root {
-    --bg-color: #050505;
-    --text-color: #ffffff;
-    --accent-color: #ffffff;
-    --subtle-color: rgba(255, 255, 255, 0.5);
+    --bg-color: #020204;
+    --primary-color: #00a8ff;
+    /* Stark Blue */
+    --accent-color: #00f3ff;
+    /* Cyan Glow */
+    --alert-color: #ff4757;
+    --text-color: #e0f7ff;
+    --hud-bg: rgba(0, 168, 255, 0.05);
+    --hud-border: rgba(0, 168, 255, 0.3);
 }
 
 * {
@@ -12,7 +17,8 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Rajdhani', sans-serif;
+    /* Tech font */
     background-color: var(--bg-color);
     color: var(--text-color);
     height: 100vh;
@@ -22,7 +28,21 @@ body {
     align-items: center;
 }
 
-/* 3D Canvas Background - Full Screen */
+/* CRT Scanline Effect */
+body::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* 3D Canvas */
 #canvas-container {
     position: absolute;
     top: 0;
@@ -30,125 +50,227 @@ body {
     width: 100%;
     height: 100%;
     z-index: 0;
+    background: radial-gradient(circle at center, #0a192f 0%, #000000 80%);
 }
 
-/* Minimal Interface Layer */
+/* Main HUD Layer */
 .app-container {
     position: relative;
     z-index: 10;
     width: 100%;
-    max-width: 600px;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 40px 20px;
+    padding: 20px;
     pointer-events: none;
-    /* Let clicks pass to canvas */
 }
 
+/* Tech Corners */
+.tech-border {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border: 2px solid var(--hud-border);
+    pointer-events: none;
+}
+
+.tl {
+    top: 20px;
+    left: 20px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.tr {
+    top: 20px;
+    right: 20px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.bl {
+    bottom: 20px;
+    left: 20px;
+    border-right: none;
+    border-top: none;
+}
+
+.br {
+    bottom: 20px;
+    right: 20px;
+    border-left: none;
+    border-top: none;
+}
+
+/* Header */
 header {
-    text-align: center;
-    opacity: 0.8;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 40px;
+}
+
+.logo-container {
+    text-align: left;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: 200;
-    letter-spacing: 8px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--primary-color);
+    text-shadow: 0 0 20px var(--primary-color);
     text-transform: uppercase;
 }
 
+.subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    color: var(--accent-color);
+    opacity: 0.7;
+}
+
+/* System Metrics (Fake Data) */
+.system-metrics {
+    display: flex;
+    gap: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: var(--accent-color);
+    text-align: right;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.bar {
+    width: 100px;
+    height: 4px;
+    background: rgba(0, 168, 255, 0.2);
+    position: relative;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+    animation: fluctuate 3s infinite ease-in-out;
+}
+
+@keyframes fluctuate {
+    0% {
+        width: 40%;
+    }
+
+    50% {
+        width: 80%;
+    }
+
+    100% {
+        width: 40%;
+    }
+}
+
+/* Main Center */
 main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: flex-end;
+    /* Push chat to bottom */
+    padding-bottom: 100px;
 }
 
-/* Status Text - Minimal & Centered */
-.status-display {
-    margin-top: 20px;
-}
-
-#status-text {
-    font-size: 0.9rem;
-    font-weight: 300;
-    letter-spacing: 4px;
-    color: var(--subtle-color);
-    text-transform: uppercase;
-}
-
-/* Chat Area - Floating & Clean */
+/* Chat Area - Sci-Fi Terminal */
 .chat-area {
-    position: absolute;
-    bottom: 150px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 500px;
-    text-align: center;
+    width: 600px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(0, 10, 20, 0.6);
+    border: 1px solid var(--hud-border);
+    padding: 20px;
+    font-family: 'Courier New', monospace;
     pointer-events: auto;
+    mask-image: linear-gradient(to bottom, transparent, black 20%);
 }
 
 .message {
-    font-size: 1.2rem;
-    font-weight: 300;
-    margin: 10px 0;
-    opacity: 0;
-    animation: fadeIn 0.5s forwards;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 .user-message {
-    color: var(--subtle-color);
+    color: #fff;
+}
+
+.user-message::before {
+    content: "> USER: ";
+    color: var(--accent-color);
 }
 
 .ai-message {
-    color: var(--text-color);
-    font-weight: 400;
+    color: var(--primary-color);
+    text-shadow: 0 0 5px rgba(0, 168, 255, 0.5);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.ai-message::before {
+    content: "> NOVA: ";
+    color: var(--primary-color);
 }
 
-/* Minimal Mic Button */
+/* Footer Controls */
 footer {
-    display: flex;
-    justify-content: center;
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     pointer-events: auto;
 }
 
 .mic-button {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 80px;
+    height: 80px;
     background: transparent;
-    border: 1px solid var(--subtle-color);
-    color: var(--text-color);
-    font-size: 1.2rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    color: var(--primary-color);
+    font-size: 1.5rem;
     cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(0, 168, 255, 0.2), inset 0 0 20px rgba(0, 168, 255, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .mic-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
-    border-color: var(--text-color);
+    background: rgba(0, 168, 255, 0.1);
+    box-shadow: 0 0 40px rgba(0, 168, 255, 0.6), inset 0 0 40px rgba(0, 168, 255, 0.4);
+    transform: scale(1.1);
 }
 
 .mic-button.active {
-    border-color: var(--text-color);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    border-color: var(--alert-color);
+    color: var(--alert-color);
+    box-shadow: 0 0 50px rgba(255, 71, 87, 0.6);
+    animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 60px rgba(255, 71, 87, 0.8);
+    }
+
+    100% {
+        box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+    }
 }

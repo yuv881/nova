@@ -1,29 +1,26 @@
-// --- THREE.JS MINIMAL SETUP ---
-let scene, camera, renderer, sphere;
+// --- THREE.JS ARC REACTOR SETUP ---
+let scene, camera, renderer;
+let reactorGroup; // Group to hold all reactor parts
+let coreSphere, innerRing, outerRing, particles;
 let isSpeaking = false;
 let isListening = false;
+let mouseX = 0, mouseY = 0;
 
 // DOM Elements
 const micButton = document.getElementById('mic-button');
-const statusText = document.getElementById('status-text');
 const chatArea = document.getElementById('chat-area');
 
 function init3D() {
     const container = document.getElementById('canvas-container');
-
-    if (!container) {
-        console.error("Canvas container not found!");
-        return;
-    }
+    if (!container) return;
 
     // Scene
     scene = new THREE.Scene();
-    // Minimal fog for depth
-    scene.fog = new THREE.FogExp2(0x050505, 0.05);
+    scene.fog = new THREE.FogExp2(0x000000, 0.02);
 
     // Camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 4;
+    camera.position.z = 5;
 
     // Renderer
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -31,72 +28,124 @@ function init3D() {
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
-    // Minimal Sphere
-    // Using a high detail geometry for smooth look
-    const geometry = new THREE.IcosahedronGeometry(1.2, 10); // High detail
+    // --- REACTOR GEOMETRY ---
+    reactorGroup = new THREE.Group();
+    scene.add(reactorGroup);
 
-    // Shader-like material using standard material with specific settings
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: 0.1,
-        roughness: 0.2,
-        transmission: 0.0, // Glass-like
-        wireframe: true,   // Wireframe looks techy but minimal
-        wireframeLinewidth: 1.5,
-        emissive: 0x000000,
-        side: THREE.DoubleSide
+    // 1. Core Energy Sphere
+    const coreGeo = new THREE.IcosahedronGeometry(0.8, 2);
+    const coreMat = new THREE.MeshBasicMaterial({
+        color: 0x00a8ff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.8
     });
+    coreSphere = new THREE.Mesh(coreGeo, coreMat);
+    reactorGroup.add(coreSphere);
 
-    sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
+    // 2. Inner Spinning Ring (Torus Knot)
+    const innerGeo = new THREE.TorusKnotGeometry(1.2, 0.1, 100, 16);
+    const innerMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, opacity: 0.3, transparent: true });
+    innerRing = new THREE.Mesh(innerGeo, innerMat);
+    reactorGroup.add(innerRing);
+
+    // 3. Outer Mechanical Ring
+    const outerGeo = new THREE.TorusGeometry(2.2, 0.05, 16, 100);
+    const outerMat = new THREE.MeshBasicMaterial({ color: 0x00a8ff, transparent: true, opacity: 0.5 });
+    outerRing = new THREE.Mesh(outerGeo, outerMat);
+    outerRing.rotation.x = Math.PI / 2;
+    reactorGroup.add(outerRing);
+
+    // 4. Energy Particles (Flowing Inwards)
+    const partGeo = new THREE.BufferGeometry();
+    const partCount = 800;
+    const pos = new Float32Array(partCount * 3);
+    // Store initial positions for animation reset
+    for (let i = 0; i < partCount * 3; i++) {
+        pos[i] = (Math.random() - 0.5) * 10;
+    }
+    partGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const partMat = new THREE.PointsMaterial({
+        size: 0.02,
+        color: 0x00a8ff,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+    });
+    particles = new THREE.Points(partGeo, partMat);
+    reactorGroup.add(particles);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0x00a8ff, 2, 20);
+    pointLight.position.set(0, 0, 0);
+    scene.add(pointLight);
 
-    const light1 = new THREE.PointLight(0xffffff, 1);
-    light1.position.set(10, 10, 10);
-    scene.add(light1);
-
-    const light2 = new THREE.PointLight(0x4444ff, 1);
-    light2.position.set(-10, -10, 5);
-    scene.add(light2);
+    // Mouse Interaction
+    document.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
+        mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+    });
 
     animate();
 }
 
-// Time variable for wave animation
-let t = 0;
+let time = 0;
 
 function animate() {
     requestAnimationFrame(animate);
-    t += 0.01;
+    time += 0.01;
 
-    if (sphere) {
-        // Gentle Rotation
-        sphere.rotation.y += 0.002;
-        sphere.rotation.x = Math.sin(t * 0.5) * 0.1;
+    if (reactorGroup) {
+        // Parallax Effect (Look at mouse)
+        reactorGroup.rotation.y += (mouseX - reactorGroup.rotation.y) * 0.05;
+        reactorGroup.rotation.x += (mouseY - reactorGroup.rotation.x) * 0.05;
 
-        // Dynamic State Animation
+        // Core Rotation
+        coreSphere.rotation.y -= 0.02;
+        coreSphere.rotation.z -= 0.01;
+
+        // Inner Ring Complex Rotation
+        innerRing.rotation.x += 0.01;
+        innerRing.rotation.y += 0.015;
+
+        // Outer Ring Wobble
+        outerRing.rotation.x = (Math.PI / 2) + Math.sin(time) * 0.1;
+        outerRing.rotation.y += 0.005;
+
+        // Particle Flow Animation
+        const positions = particles.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            // Move towards center (0,0,0)
+            positions[i] *= 0.99; // X
+            positions[i + 1] *= 0.99; // Y
+            positions[i + 2] *= 0.99; // Z
+
+            // Reset if too close
+            if (Math.abs(positions[i]) < 0.1) {
+                positions[i] = (Math.random() - 0.5) * 10;
+                positions[i + 1] = (Math.random() - 0.5) * 10;
+                positions[i + 2] = (Math.random() - 0.5) * 10;
+            }
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+
+        // State Reactivity
         if (isListening) {
-            // Pulse and turn slightly active
-            const scale = 1.2 + Math.sin(t * 10) * 0.05;
-            sphere.scale.setScalar(scale);
-            sphere.material.color.setHex(0xffffff); // Bright White
-            sphere.material.wireframeLinewidth = 2;
-            sphere.rotation.y += 0.02;
+            // Red Alert / Active Mode
+            coreSphere.material.color.setHex(0xff4757);
+            innerRing.material.color.setHex(0xff4757);
+            coreSphere.scale.setScalar(1.2 + Math.sin(time * 10) * 0.1);
+            innerRing.rotation.y += 0.05; // Spin faster
         } else if (isSpeaking) {
-            // Wave motion
-            const scale = 1.0 + Math.sin(t * 20) * 0.1;
-            sphere.scale.setScalar(scale);
-            sphere.material.color.setHex(0xaaddff); // Soft Blue
-            sphere.rotation.z += 0.01;
+            // Blue Pulse Mode
+            coreSphere.material.color.setHex(0x00f3ff);
+            innerRing.material.color.setHex(0x00f3ff);
+            coreSphere.scale.setScalar(1.0 + Math.sin(time * 20) * 0.2); // Voice vibration
         } else {
-            // Idle breathing
-            const scale = 1.0 + Math.sin(t * 2) * 0.02;
-            sphere.scale.setScalar(scale);
-            sphere.material.color.setHex(0x555555); // Dim Grey
-            sphere.material.wireframeLinewidth = 1;
+            // Idle Blue
+            coreSphere.material.color.setHex(0x00a8ff);
+            innerRing.material.color.setHex(0x00f3ff);
+            coreSphere.scale.setScalar(1);
         }
     }
 
@@ -113,7 +162,6 @@ window.addEventListener('resize', () => {
 });
 
 // Initialize 3D Scene
-// Wait for DOM to be ready just in case
 document.addEventListener('DOMContentLoaded', init3D);
 
 
@@ -122,7 +170,6 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 
 if (!SpeechRecognition) {
     alert("Your browser does not support Speech Recognition. Please use Chrome or Edge.");
-    if (statusText) statusText.textContent = "NOT SUPPORTED";
 }
 
 const recognition = new SpeechRecognition();
@@ -147,7 +194,6 @@ if (micButton) {
 recognition.onstart = () => {
     isListening = true;
     if (micButton) micButton.classList.add('active');
-    if (statusText) statusText.textContent = "LISTENING...";
 };
 
 recognition.onend = () => {
@@ -157,14 +203,12 @@ recognition.onend = () => {
 
 recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    if (statusText) statusText.textContent = "PROCESSING...";
     addMessage(transcript, 'user');
     sendToBackend(transcript);
 };
 
 recognition.onerror = (event) => {
     console.error("Speech Recognition Error:", event.error);
-    if (statusText) statusText.textContent = "ERROR: " + event.error;
     isListening = false;
     if (micButton) micButton.classList.remove('active');
 };
@@ -200,7 +244,6 @@ async function sendToBackend(message) {
 
     } catch (error) {
         console.error('Error:', error);
-        if (statusText) statusText.textContent = "CONNECTION ERROR";
         addMessage("Server unreachable.", 'ai');
     }
 }
@@ -229,17 +272,14 @@ function speak(text) {
 
         utterance.onstart = () => {
             isSpeaking = true;
-            if (statusText) statusText.textContent = "VOCALIZING...";
         };
 
         utterance.onend = () => {
             isSpeaking = false;
-            if (statusText) statusText.textContent = "SYSTEM ONLINE";
         };
 
         utterance.onerror = (e) => {
             isSpeaking = false;
-            if (statusText) statusText.textContent = "SYSTEM ONLINE";
         };
 
         window.speechSynthesis.speak(utterance);
